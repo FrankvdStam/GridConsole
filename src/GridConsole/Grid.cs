@@ -120,12 +120,6 @@ namespace GridConsole
         /// </summary>
         public void Render()
         {
-            int columnWidth = 0;
-            int rowHeight = 0;
-
-            int x = 0;
-            int y = 0;
-
             int[] columnCoords = CalculateColumnCoords();
             int[] rowCoords = CalculateRowCoords();
 
