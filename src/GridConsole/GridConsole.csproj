@@ -7,6 +7,7 @@
     <PackageProjectUrl>https://github.com/FrankvdStam/GridConsole</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/FrankvdStam/GridConsole/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/FrankvdStam/GridConsole</RepositoryUrl>
+    <PackageTags>GridConsole console GUI</PackageTags>
   </PropertyGroup>
 
 </Project>
