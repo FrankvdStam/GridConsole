@@ -8,6 +8,9 @@
     <PackageLicenseUrl>https://github.com/FrankvdStam/GridConsole/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/FrankvdStam/GridConsole</RepositoryUrl>
     <PackageTags>GridConsole console GUI</PackageTags>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
 </Project>
