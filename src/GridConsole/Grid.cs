@@ -319,7 +319,7 @@ namespace GridConsole
         private int CalculateRowHeight(int row)
         {
             int max = 0;
-            for (int i = 0; i < Height; i++)
+            for (int i = 0; i < Width; i++)
             {
                 if (max < _elements[i, row]?.Height)
                 {
