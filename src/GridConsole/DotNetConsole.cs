@@ -81,6 +81,10 @@ namespace GridConsole
             {
                 k = Keys.Enter;
             }
+            if (info.Key == ConsoleKey.Backspace)
+            {
+                k = Keys.Backspace;
+            }
             return k;
         }
 

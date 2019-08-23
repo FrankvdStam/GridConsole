@@ -8,6 +8,7 @@
         UpArrow,
         DownArrow,
         Enter,
+        Backspace,
         Unknown
     }
 
