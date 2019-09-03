@@ -2,7 +2,7 @@
 
 namespace GridConsole.Elements
 {
-    public delegate void EnterPressedDelegate(ABaseElement element);
+    public delegate void EnterPressedDelegate(ABaseElement element, object parameter);
 
     public abstract class ABaseElement
     {
@@ -26,9 +26,14 @@ namespace GridConsole.Elements
         
         public event EnterPressedDelegate EnterPressedEvent;
 
-        public void EnterPressed()
+        public virtual void EnterPressed()
         {
-            EnterPressedEvent?.Invoke(this);
+            EnterPressedEvent?.Invoke(this, null);
+        }
+
+        protected virtual void OnEnterPressed(object parameter)
+        {
+            EnterPressedEvent?.Invoke(this, parameter);
         }
 
         public abstract void Draw(IConsole console, int x, int y);

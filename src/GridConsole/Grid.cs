@@ -6,24 +6,74 @@ using GridConsole.Elements;
 
 namespace GridConsole
 {
-    public class Grid
+    public class Grid : ABaseElement
     {
-        public Grid(IConsole console, int width, int height, int marginWidth = 1, int marginHeight = 0) 
+        public Grid(IConsole console, int gridWidth, int gridHeight, int marginWidth = 1, int marginHeight = 0) : base(Color.White, Color.Black, Color.Black, Color.White)
         {
-            Width = width;
-            Height = height;
+            if (gridWidth == 0 || gridHeight == 0)
+            {
+                throw new Exception("Width and height need to be at least 1 in order to accomodate elements.");
+            }
+
+            GridWidth = gridWidth;
+            GridHeight = gridHeight;
             MarginWidth = marginWidth;
             MarginHeight = marginHeight;
-            _elements = new ABaseElement[Width,Height];
+            _elements = new ABaseElement[GridWidth,GridHeight];
             this._console = console;
         }
+
+        public Grid(IConsole console, string text, Grid parent, int gridWidth, int gridHeight, int marginWidth = 1, int marginHeight = 0) : base(Color.White, Color.Black, Color.Black, Color.White)
+        {
+            if (gridWidth == 0 || gridHeight == 0)
+            {
+                throw new Exception("Width and height need to be at least 1 in order to accomodate elements.");
+            }
+
+            Text = text;
+            GridWidth = gridWidth;
+            GridHeight = gridHeight;
+            MarginWidth = marginWidth;
+            MarginHeight = marginHeight;
+            _elements = new ABaseElement[GridWidth, GridHeight];
+            _parentGrid = parent;
+            this._console = console;
+        }
+
+        #region Base element ========================================================================================================
+        public string Text { get; set; }
+        public override int Width => Text.Length;
+        public override int Height => 1;
+        public override bool CanBeSelected => true;
+        public override void Draw(IConsole console, int x, int y)
+        {
+            if (IsSelected)
+            {
+                console.SetForegroundColor(HighlightForegroundColor);
+                console.SetBackgroundColor(HighlightBackgroundColor);
+            }
+            else
+            {
+                console.SetForegroundColor(ForegroundColor);
+                console.SetBackgroundColor(BackgroundColor);
+            }
+            console.Gotoxy(x, y);
+            foreach (char c in Text)
+            {
+                console.Write(c);
+            }
+        }
+        #endregion
         
         #region properties/utilities
         private readonly IConsole _console;
         private ABaseElement[,] _elements;
+        private Grid _subGrid = null;
+        private Grid _parentGrid = null;
+        private bool _clearScreen = false;
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int GridWidth { get; private set; }
+        public int GridHeight { get; private set; }
         public int MarginWidth { get; private set; }
         public int MarginHeight { get; private set; }
         
@@ -32,9 +82,9 @@ namespace GridConsole
         /// </summary>
         public void Resize(int width, int height)
         {
-            Width = width;
-            Height = height;
-            _elements = new ABaseElement[Width, Height];
+            GridWidth = width;
+            GridHeight = height;
+            _elements = new ABaseElement[GridWidth, GridHeight];
         }
 
         /// <summary>
@@ -66,9 +116,9 @@ namespace GridConsole
         {
             x = 0;
             y = 0;
-            for (int i = 0; i < Width; i++)
+            for (int i = 0; i < GridWidth; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (int j = 0; j < GridHeight; j++)
                 {
                     if (_elements[i, j] == element)
                     {
@@ -86,9 +136,9 @@ namespace GridConsole
         /// </summary>
         public IEnumerable<ABaseElement> EnumerateElements()
         {
-            for (int i = 0; i < Width; i++)
+            for (int i = 0; i < GridWidth; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (int j = 0; j < GridHeight; j++)
                 {
                     yield return _elements[i, j];
                 }
@@ -99,19 +149,41 @@ namespace GridConsole
         /// <summary>
         /// Awaits and handles keyboard. Does NOT call draw again, you must do this yourself.
         /// </summary>
-        public void HandleInput()
+        public void HandleInput(Keys key = Keys.None)
         {
-            Keys key = _console.GetKey();
-
-            //Navigation
-            if (key == Keys.UpArrow || key == Keys.DownArrow || key == Keys.LeftArrow || key == Keys.RightArrow)
+            if (key == Keys.None)
             {
-                TryNavigate(key);
+                key = _console.GetKey();
             }
 
-            if (key == Keys.Enter)
+            if (_subGrid == null)
             {
-                SelectedElement?.EnterPressed();
+                //Navigation
+                if (key == Keys.Backspace)
+                {
+                    _parentGrid._subGrid = null;
+                    _parentGrid._clearScreen = true;
+                }
+
+                if (key == Keys.UpArrow || key == Keys.DownArrow || key == Keys.LeftArrow || key == Keys.RightArrow)
+                {
+                    TryNavigate(key);
+                }
+
+                if (key == Keys.Enter)
+                {
+                    SelectedElement?.EnterPressed();
+
+                    if (SelectedElement is Grid subGrid)
+                    {
+                        _subGrid = subGrid;
+                        _clearScreen = true;
+                    }
+                }
+            }
+            else
+            {
+                _subGrid.HandleInput(key);
             }
         }
 
@@ -120,12 +192,25 @@ namespace GridConsole
         /// </summary>
         public void Render()
         {
+            if (_clearScreen)
+            {
+                _console.SetBackgroundColor(Color.Black);
+                _clearScreen = false;
+                _console.Clear();
+            }
+
+            if (_subGrid != null)
+            {
+                _subGrid.Render();
+                return;
+            }
+
             int[] columnCoords = CalculateColumnCoords();
             int[] rowCoords = CalculateRowCoords();
 
-            for (int i = 0; i < Width; i++)
+            for (int i = 0; i < GridWidth; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (int j = 0; j < GridHeight; j++)
                 {
                     _elements[i, j]?.Draw(_console, columnCoords[i], rowCoords[j]);
                 }
@@ -214,20 +299,20 @@ namespace GridConsole
         {
             if (x < 0)
             {
-                x = Width - 1;
+                x = GridWidth - 1;
             }
 
-            if (x >= Width)
+            if (x >= GridWidth)
             {
                 x = 0;
             }
 
             if (y < 0)
             {
-                y = Height - 1;
+                y = GridHeight - 1;
             }
 
-            if (y >= Height)
+            if (y >= GridHeight)
             {
                 y = 0;
             }
@@ -241,26 +326,26 @@ namespace GridConsole
                 //Reverse t
                 if (x < 0)
                 {
-                    x = Width - 1;
+                    x = GridWidth - 1;
                 }
 
-                if (x >= Width)
+                if (x >= GridWidth)
                 {
                     x = 0;
                 }
 
                 if (y < 0)
                 {
-                    y = Height - 1;
+                    y = GridHeight - 1;
                 }
 
-                if (y >= Height)
+                if (y >= GridHeight)
                 {
                     y = 0;
                 }
             //}
 
-            if (x >= 0 && x < Width && y >= 0 && y < Height && _elements[x, y] != null && _elements[x, y].CanBeSelected)
+            if (x >= 0 && x < GridWidth && y >= 0 && y < GridHeight && _elements[x, y] != null && _elements[x, y].CanBeSelected)
             {
                 NavigateToElement(_elements[x, y]);
                 return true;
@@ -272,9 +357,9 @@ namespace GridConsole
         #region Rasterization ===============================================================================================================================
         private int[] CalculateColumnCoords()
         {
-            int[] columnCoords = new int[Width];
+            int[] columnCoords = new int[GridWidth];
             int width = 0;
-            for (int i = 0; i < Width; i++)
+            for (int i = 0; i < GridWidth; i++)
             {
                 if (i != 0)
                 {
@@ -288,9 +373,9 @@ namespace GridConsole
 
         private int[] CalculateRowCoords()
         {
-            int[] rowCoords = new int[Height];
+            int[] rowCoords = new int[GridHeight];
             int height = 0;
-            for (int i = 0; i < Height; i++)
+            for (int i = 0; i < GridHeight; i++)
             {
                 if (i != 0)
                 {
@@ -306,7 +391,7 @@ namespace GridConsole
         private int CalculateColumnWidth(int column)
         {
             int max = 0;
-            for (int i = 0; i < Height; i++)
+            for (int i = 0; i < GridHeight; i++)
             {
                 if (max < _elements[column, i]?.Width)
                 {
@@ -319,7 +404,7 @@ namespace GridConsole
         private int CalculateRowHeight(int row)
         {
             int max = 0;
-            for (int i = 0; i < Width; i++)
+            for (int i = 0; i < GridWidth; i++)
             {
                 if (max < _elements[i, row]?.Height)
                 {
