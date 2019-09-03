@@ -9,7 +9,8 @@
         DownArrow,
         Enter,
         Backspace,
-        Unknown
+        Unknown,
+        None
     }
 
     public enum Color

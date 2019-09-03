@@ -14,7 +14,7 @@ namespace CsharpConsole
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
@@ -42,7 +42,7 @@ namespace CsharpConsole
         }
 
 
-        static void Main2(string[] args)
+        static void Main(string[] args)
         {
             IConsole console = new DotNetConsole();
             Grid grid = new Grid(console, 4, 4);
@@ -56,6 +56,13 @@ namespace CsharpConsole
             grid[2,2] = new Button("2,2");
             grid[1,0] = new Text("Text asdf");
             
+            Grid subGrid = new Grid(console, "Deploy application", grid, 1, 3);
+            subGrid[0, 0] = new Button("Debug");
+            subGrid[0, 1] = new Button("Keyuser");
+            subGrid[0, 2] = new Button("Release");
+
+            grid[0, 2] = subGrid;
+
             foreach (var element in grid.EnumerateElements())
             {
                 if (element != null)
@@ -71,7 +78,7 @@ namespace CsharpConsole
             }
         }
 
-        static void ButtonClick(ABaseElement element)
+        static void ButtonClick(ABaseElement element, object parameter)
         {
             if (element is Button button)
             {
