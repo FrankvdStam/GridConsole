@@ -6,128 +6,163 @@ using GridConsole.Elements;
 
 namespace GridConsole
 {
+    public class GridConstructor
+    {
+        public int GridWidth = 1;
+        public int GridHeight = 1;
+        public int MarginWidth = 1;
+        public int MarginHeight = 0;
+        public string Text;
+        public Grid ParentGrid;
+        public IConsole Console;
+    }
+
+
     public static class GridFactory
     {
-        public static Grid Size(this Grid grid, int width, int height)
+        public static Grid Create(Func<GridConstructor, GridConstructor> construct)
         {
-            return new Grid(copyGrid: grid, gridWidth: width, gridHeight: height, factorySize: true);
+            GridConstructor gridConstructor = new GridConstructor();
+            gridConstructor = construct(gridConstructor);
+            Grid grid = new Grid(gridConstructor);
+            return grid;
         }
 
-        public static Grid Margin(this Grid grid, int width, int height)
+        public static GridConstructor Init()
         {
-            return new Grid(copyGrid: grid, marginWidth: width, marginHeight: height, factoryMargin: true);
+            return new GridConstructor();
         }
 
-        public static Grid Target(this Grid grid, IConsole console)
+        public static GridConstructor Size(this GridConstructor gridConstructor, int width, int height)
         {
-            return new Grid(copyGrid: grid, console: console, factoryTarget: true);
+            gridConstructor.GridWidth = width;
+            gridConstructor.GridHeight = height;
+            return gridConstructor;
         }
 
-        public static Grid Parent(this Grid grid, Grid parentGrid)
+        public static GridConstructor Margin(this GridConstructor gridConstructor, int width, int height)
         {
-            return new Grid(copyGrid: grid, parent: parentGrid, factoryParent: true);
+            gridConstructor.MarginWidth = width;
+            gridConstructor.MarginHeight = height;
+            return gridConstructor;
         }
 
-        public static Grid Text(this Grid grid, string text)
+        public static GridConstructor Target(this GridConstructor gridConstructor, IConsole console)
         {
-            return new Grid(copyGrid: grid, text: text, factoryText: true);
+            gridConstructor.Console = console;
+            return gridConstructor;
+        }
+
+        public static GridConstructor Parent(this GridConstructor gridConstructor, Grid parentGrid)
+        {
+            gridConstructor.ParentGrid = parentGrid;
+            return gridConstructor;
+        }
+
+        public static GridConstructor Text(this GridConstructor gridConstructor, string text)
+        {
+            gridConstructor.Text = text;
+            return gridConstructor;
         }
     }
     
     public class Grid : ABaseElement
     {
         #region constructor/Fluent interface
-        public Grid(
-                Grid copyGrid = null,
-                IConsole console = null,
-                Grid parent = null,
-                string text = null,
-                int gridWidth = 1,
-                int gridHeight = 1,
-                int marginWidth = 1,
-                int marginHeight = 0,
-                bool factorySize = false,
-                bool factoryMargin = false,
-                bool factoryTarget = false,
-                bool factoryParent = false,
-                bool factoryText = false
-            ) : base(Color.White, Color.Black, Color.Black, Color.White)
+        public Grid(GridConstructor gridConstructor) : base(Color.White, Color.Black, Color.Black, Color.White)
         {
-            //Always copy if possible
-            if (copyGrid != null)
-            {
-                GridWidth       = copyGrid.GridWidth;
-                GridHeight      = copyGrid.GridHeight;
-                _elements = new ABaseElement[GridWidth, GridHeight];
-                MarginWidth     = copyGrid.MarginWidth;
-                MarginHeight    = copyGrid.MarginHeight;
-                _elements       = copyGrid._elements;
-                _parentGrid     = copyGrid._parentGrid;
-                _console        = copyGrid._console;
-            }
+            GridWidth       = gridConstructor.GridWidth;
+            GridHeight      = gridConstructor.GridHeight;
+            _elements = new ABaseElement[GridWidth, GridHeight];
+            MarginWidth     = gridConstructor.MarginWidth;
+            MarginHeight    = gridConstructor.MarginHeight;
+            _parentGrid     = gridConstructor.ParentGrid;
+            _console        = gridConstructor.Console;
+            Text            = gridConstructor.Text;
 
-            //Cherrypick with properties to overwrite
-
-            if (factorySize)
+            if (GridWidth <= 0 && GridHeight <= 0 && _console != null)
             {
-                GridWidth = gridWidth;
-                GridHeight = gridHeight;
-                _elements = new ABaseElement[GridWidth, GridHeight];
-            }
-
-            if(factoryMargin)
-            {
-                MarginWidth = marginWidth;
-                MarginHeight = marginHeight;
-            }
-
-            if(factoryTarget)
-            {
-                _console = console;
-            }
-
-            if(factoryParent)
-            {
-                _parentGrid = parent;
-            }
-
-            if (factoryText)
-            {
-                Text = text;
-            }         
-        }
-
-        public static Grid Create()
-        {
-            return new Grid();
-        }    
-        
-        public Grid Verify()
-        {
-            if (GridWidth != 0 && GridHeight != 0 && _console != null)
-            {
-                return this;
-            }
-            else
-            {
-                throw new Exception("Grid verification failed. Make sure construction is correct.");
+                throw new Exception("Grid needs a width and height larger then 1 and a proper target. Try calling Size() and Target().");
             }
         }
 
-        
-        //public Grid() : base(Color.White, Color.Black, Color.Black, Color.White) { }
-        //
-        //public Grid(Grid g) : base(Color.White, Color.Black, Color.Black, Color.White)
+
+        //public Grid(
+        //        Grid copyGrid = null,
+        //        IConsole console = null,
+        //        Grid parent = null,
+        //        string text = null,
+        //        int gridWidth = 1,
+        //        int gridHeight = 1,
+        //        int marginWidth = 1,
+        //        int marginHeight = 0,
+        //        bool factorySize = false,
+        //        bool factoryMargin = false,
+        //        bool factoryTarget = false,
+        //        bool factoryParent = false,
+        //        bool factoryText = false
+        //    ) : base(Color.White, Color.Black, Color.Black, Color.White)
         //{
-        //    GridWidth = g.GridWidth;
-        //    GridHeight = g.GridHeight;
-        //    MarginWidth = g.MarginWidth;
-        //    MarginHeight = g.MarginHeight;
-        //    _elements = g._elements;
-        //    _console = g._console;
+        //    //Always copy if possible
+        //    if (copyGrid != null)
+        //    {
+        //        GridWidth       = copyGrid.GridWidth;
+        //        GridHeight      = copyGrid.GridHeight;
+        //        MarginWidth     = copyGrid.MarginWidth;
+        //        MarginHeight    = copyGrid.MarginHeight;
+        //        _elements       = copyGrid._elements;
+        //        _parentGrid     = copyGrid._parentGrid;
+        //        _console        = copyGrid._console;
+        //    }
+        //
+        //    //Cherrypick with properties to overwrite
+        //
+        //    if (factorySize)
+        //    {
+        //        GridWidth = gridWidth;
+        //        GridHeight = gridHeight;
+        //        _elements = new ABaseElement[GridWidth, GridHeight];
+        //    }
+        //
+        //    if(factoryMargin)
+        //    {
+        //        MarginWidth = marginWidth;
+        //        MarginHeight = marginHeight;
+        //    }
+        //
+        //    if(factoryTarget)
+        //    {
+        //        _console = console;
+        //    }
+        //
+        //    if(factoryParent)
+        //    {
+        //        _parentGrid = parent;
+        //    }
+        //
+        //    if (factoryText)
+        //    {
+        //        Text = text;
+        //    }         
         //}
-
-        
+        //
+        //public static Grid Create()
+        //{
+        //    return new Grid();
+        //}    
+        //
+        //public Grid Verify()
+        //{
+        //    if (GridWidth != 0 && GridHeight != 0 && _console != null)
+        //    {
+        //        return this;
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Grid verification failed. Make sure construction is correct.");
+        //    }
+        //}
+                       
 
         //public Grid(IConsole console, string text, Grid parent, int gridWidth, int gridHeight, int marginWidth = 1, int marginHeight = 0) : base(Color.White, Color.Black, Color.Black, Color.White)
         //{
@@ -175,8 +210,8 @@ namespace GridConsole
         #region properties/utilities
         private readonly IConsole _console;
         private ABaseElement[,] _elements;
-        private Grid _subGrid = null;
-        private Grid _parentGrid = null;
+        private Grid _subGrid = null; //Subgrid is found dynamically when selected
+        private Grid _parentGrid = null; //Parentgrid must be passed as reference when constructed
         private bool _clearScreen = false;
 
         public int GridWidth { get; private set; }
@@ -266,7 +301,7 @@ namespace GridConsole
             if (_subGrid == null)
             {
                 //Navigation
-                if (key == Keys.Backspace)
+                if (key == Keys.Backspace && _parentGrid != null)
                 {
                     _parentGrid._subGrid = null;
                     _parentGrid._clearScreen = true;
