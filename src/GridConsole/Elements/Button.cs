@@ -44,9 +44,10 @@ namespace GridConsole.Elements
             return buttonData;
         }
 
-        public static ButtonData Pressed(this ButtonData buttonData, EnterPressedDelegate enterPressed)
+        public static ButtonData Pressed(this ButtonData buttonData, object parameter, EnterPressedDelegate enterPressed)
         {
             buttonData.EnterPressed = enterPressed;
+            buttonData.Parameter = parameter;
             return buttonData;
         }
     }
@@ -62,7 +63,7 @@ namespace GridConsole.Elements
             )
         {
             Text                = buttonData.Text;
-            Parameter           = buttonData.Text;
+            Parameter           = buttonData.Parameter;
             EnterPressedEvent  += buttonData.EnterPressed;
               
             if(string.IsNullOrWhiteSpace(Text))
