@@ -20,7 +20,13 @@ namespace CsharpConsole
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
             IConsole console = new DotNetConsole();
-            Grid grid = new Grid(console, 1, 4);
+
+            Grid grid = Grid.Create()
+                            .Target(console)
+                            .Size(1, 4)
+                            .Margin(1, 0)                            
+                            .Verify();
+
             grid[0, 0] = new Text("Publish channel:");
             grid[0, 1] = new Button("Debug");
             grid[0, 2] = new Button("Keyuser");
@@ -45,7 +51,11 @@ namespace CsharpConsole
         static void Main(string[] args)
         {
             IConsole console = new DotNetConsole();
-            Grid grid = new Grid(console, 4, 4);
+            Grid grid = Grid.Create()
+                            .Target(console)
+                            .Size(4, 4)
+                            .Margin(1, 0)
+                            .Verify();
 
             grid[0,0] = new Button("0,0");
             grid[0,1] = new Button("0,1");
@@ -55,8 +65,15 @@ namespace CsharpConsole
             grid[2,1] = new Button("2,1");
             grid[2,2] = new Button("2,2");
             grid[1,0] = new Text("Text asdf");
-            
-            Grid subGrid = new Grid(console, "Deploy application", grid, 1, 3);
+
+            Grid subGrid = Grid.Create()
+                           .Target(console)
+                           .Size(1, 3)
+                           .Margin(1, 0)
+                           .Parent(grid)
+                           .Text("Deploy application")
+                           .Verify();
+
             subGrid[0, 0] = new Button("Debug");
             subGrid[0, 1] = new Button("Keyuser");
             subGrid[0, 2] = new Button("Release");

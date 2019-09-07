@@ -6,39 +6,146 @@ using GridConsole.Elements;
 
 namespace GridConsole
 {
+    public static class GridFactory
+    {
+        public static Grid Size(this Grid grid, int width, int height)
+        {
+            return new Grid(copyGrid: grid, gridWidth: width, gridHeight: height, factorySize: true);
+        }
+
+        public static Grid Margin(this Grid grid, int width, int height)
+        {
+            return new Grid(copyGrid: grid, marginWidth: width, marginHeight: height, factoryMargin: true);
+        }
+
+        public static Grid Target(this Grid grid, IConsole console)
+        {
+            return new Grid(copyGrid: grid, console: console, factoryTarget: true);
+        }
+
+        public static Grid Parent(this Grid grid, Grid parentGrid)
+        {
+            return new Grid(copyGrid: grid, parent: parentGrid, factoryParent: true);
+        }
+
+        public static Grid Text(this Grid grid, string text)
+        {
+            return new Grid(copyGrid: grid, text: text, factoryText: true);
+        }
+    }
+    
     public class Grid : ABaseElement
     {
-        public Grid(IConsole console, int gridWidth, int gridHeight, int marginWidth = 1, int marginHeight = 0) : base(Color.White, Color.Black, Color.Black, Color.White)
+        #region constructor/Fluent interface
+        public Grid(
+                Grid copyGrid = null,
+                IConsole console = null,
+                Grid parent = null,
+                string text = null,
+                int gridWidth = 1,
+                int gridHeight = 1,
+                int marginWidth = 1,
+                int marginHeight = 0,
+                bool factorySize = false,
+                bool factoryMargin = false,
+                bool factoryTarget = false,
+                bool factoryParent = false,
+                bool factoryText = false
+            ) : base(Color.White, Color.Black, Color.Black, Color.White)
         {
-            if (gridWidth == 0 || gridHeight == 0)
+            //Always copy if possible
+            if (copyGrid != null)
             {
-                throw new Exception("Width and height need to be at least 1 in order to accomodate elements.");
+                GridWidth       = copyGrid.GridWidth;
+                GridHeight      = copyGrid.GridHeight;
+                _elements = new ABaseElement[GridWidth, GridHeight];
+                MarginWidth     = copyGrid.MarginWidth;
+                MarginHeight    = copyGrid.MarginHeight;
+                _elements       = copyGrid._elements;
+                _parentGrid     = copyGrid._parentGrid;
+                _console        = copyGrid._console;
             }
 
-            GridWidth = gridWidth;
-            GridHeight = gridHeight;
-            MarginWidth = marginWidth;
-            MarginHeight = marginHeight;
-            _elements = new ABaseElement[GridWidth,GridHeight];
-            this._console = console;
-        }
+            //Cherrypick with properties to overwrite
 
-        public Grid(IConsole console, string text, Grid parent, int gridWidth, int gridHeight, int marginWidth = 1, int marginHeight = 0) : base(Color.White, Color.Black, Color.Black, Color.White)
-        {
-            if (gridWidth == 0 || gridHeight == 0)
+            if (factorySize)
             {
-                throw new Exception("Width and height need to be at least 1 in order to accomodate elements.");
+                GridWidth = gridWidth;
+                GridHeight = gridHeight;
+                _elements = new ABaseElement[GridWidth, GridHeight];
             }
 
-            Text = text;
-            GridWidth = gridWidth;
-            GridHeight = gridHeight;
-            MarginWidth = marginWidth;
-            MarginHeight = marginHeight;
-            _elements = new ABaseElement[GridWidth, GridHeight];
-            _parentGrid = parent;
-            this._console = console;
+            if(factoryMargin)
+            {
+                MarginWidth = marginWidth;
+                MarginHeight = marginHeight;
+            }
+
+            if(factoryTarget)
+            {
+                _console = console;
+            }
+
+            if(factoryParent)
+            {
+                _parentGrid = parent;
+            }
+
+            if (factoryText)
+            {
+                Text = text;
+            }         
         }
+
+        public static Grid Create()
+        {
+            return new Grid();
+        }    
+        
+        public Grid Verify()
+        {
+            if (GridWidth != 0 && GridHeight != 0 && _console != null)
+            {
+                return this;
+            }
+            else
+            {
+                throw new Exception("Grid verification failed. Make sure construction is correct.");
+            }
+        }
+
+        
+        //public Grid() : base(Color.White, Color.Black, Color.Black, Color.White) { }
+        //
+        //public Grid(Grid g) : base(Color.White, Color.Black, Color.Black, Color.White)
+        //{
+        //    GridWidth = g.GridWidth;
+        //    GridHeight = g.GridHeight;
+        //    MarginWidth = g.MarginWidth;
+        //    MarginHeight = g.MarginHeight;
+        //    _elements = g._elements;
+        //    _console = g._console;
+        //}
+
+        
+
+        //public Grid(IConsole console, string text, Grid parent, int gridWidth, int gridHeight, int marginWidth = 1, int marginHeight = 0) : base(Color.White, Color.Black, Color.Black, Color.White)
+        //{
+        //    if (gridWidth == 0 || gridHeight == 0)
+        //    {
+        //        throw new Exception("Width and height need to be at least 1 in order to accomodate elements.");
+        //    }
+        //
+        //    Text = text;
+        //    GridWidth = gridWidth;
+        //    GridHeight = gridHeight;
+        //    MarginWidth = marginWidth;
+        //    MarginHeight = marginHeight;
+        //    _elements = new ABaseElement[GridWidth, GridHeight];
+        //    _parentGrid = parent;
+        //    this._console = console;
+        //}
+        #endregion
 
         #region Base element ========================================================================================================
         public string Text { get; set; }
