@@ -44,6 +44,11 @@ namespace GridConsole.Elements
             return buttonData;
         }
 
+        public static ButtonData Pressed(this ButtonData buttonData, EnterPressedDelegate enterPressed)
+        {
+            buttonData.EnterPressed = enterPressed;
+            return buttonData;
+        }
     }
 
     public class Button : ABaseElement { 
