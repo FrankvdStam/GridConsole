@@ -15,6 +15,10 @@ namespace GridConsole
         public string Text;
         public Grid ParentGrid;
         public IConsole Console;
+        public Color ForegroundColor = Color.White;
+        public Color BackgroundColor = Color.Black;
+        public Color HighlightForegroundColor = Color.Black;
+        public Color HighlightBackgroundColor = Color.White;
     }
     
     public static class GridFactory
@@ -58,12 +62,32 @@ namespace GridConsole
             girdData.Text = text;
             return girdData;
         }
+
+        public static GridData Colors(this GridData gridData, Color foregroundColor, Color backgroundColor)
+        {
+            gridData.ForegroundColor = foregroundColor;
+            gridData.BackgroundColor = backgroundColor;
+            return gridData;
+        }
+
+        public static GridData Highlight(this GridData gridData, Color foregroundColor, Color backgroundColor)
+        {
+            gridData.HighlightForegroundColor = foregroundColor;
+            gridData.HighlightBackgroundColor = backgroundColor;
+            return gridData;
+        }
     }
     
     public class Grid : ABaseElement
     {
         #region constructor/Fluent interface
-        public Grid(GridData girdData) : base(Color.White, Color.Black, Color.Black, Color.White)
+        public Grid(GridData girdData) : base
+            (
+                girdData.ForegroundColor,
+                girdData.BackgroundColor,
+                girdData.HighlightForegroundColor,
+                girdData.HighlightBackgroundColor
+            )
         {
             GridWidth       = girdData.GridWidth;
             GridHeight      = girdData.GridHeight;
@@ -73,7 +97,7 @@ namespace GridConsole
             _parentGrid     = girdData.ParentGrid;
             _console        = girdData.Console;
             Text            = girdData.Text;
-
+            
             if (GridWidth <= 0 && GridHeight <= 0 && _console != null)
             {
                 throw new Exception("Grid needs a width and height larger then 1 and a proper target. Try calling Size() and Target().");
@@ -173,7 +197,7 @@ namespace GridConsole
         }
 
         /// <summary>
-        /// Enumerates all the elements in the grid. Allows linq queries to be executed easily on the multidimensional grid.
+        /// Enumerates all the elements in the grid.
         /// </summary>
         public IEnumerable<ABaseElement> EnumerateElements()
         {
@@ -188,7 +212,7 @@ namespace GridConsole
         #endregion
 
         /// <summary>
-        /// Awaits and handles keyboard. Does NOT call draw again, you must do this yourself.
+        /// Waits for keyboard input (halts the caller). Does NOT call draw again, you must do this yourself.
         /// </summary>
         public void HandleInput(Keys key = Keys.None)
         {
