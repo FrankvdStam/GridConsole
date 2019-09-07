@@ -19,13 +19,14 @@ namespace CsharpConsole
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-            IConsole console = new DotNetConsole();
+            Grid gasd = GridFactory.Create(i => i.Size(1, 1).Target(new DotNetConsole()));
 
-            Grid grid = Grid.Create()
-                            .Target(console)
-                            .Size(1, 4)
-                            .Margin(1, 0)                            
-                            .Verify();
+            IConsole console = new DotNetConsole();
+            
+            Grid grid = GridFactory.Create(i => i
+                .Target(console)
+                .Size(1, 4)
+            );
 
             grid[0, 0] = new Text("Publish channel:");
             grid[0, 1] = new Button("Debug");
@@ -51,11 +52,11 @@ namespace CsharpConsole
         static void Main(string[] args)
         {
             IConsole console = new DotNetConsole();
-            Grid grid = Grid.Create()
-                            .Target(console)
-                            .Size(4, 4)
-                            .Margin(1, 0)
-                            .Verify();
+
+            Grid grid = GridFactory.Create(i => i
+                .Target(console)
+                .Size(4, 4)
+            );
 
             grid[0,0] = new Button("0,0");
             grid[0,1] = new Button("0,1");
@@ -65,14 +66,13 @@ namespace CsharpConsole
             grid[2,1] = new Button("2,1");
             grid[2,2] = new Button("2,2");
             grid[1,0] = new Text("Text asdf");
-
-            Grid subGrid = Grid.Create()
-                           .Target(console)
-                           .Size(1, 3)
-                           .Margin(1, 0)
-                           .Parent(grid)
-                           .Text("Deploy application")
-                           .Verify();
+         
+            Grid subGrid = GridFactory.Create(i => i
+                .Target(console)
+                .Size(1, 4)
+                .Parent(grid)
+                .Text("Deploy application")
+            );
 
             subGrid[0, 0] = new Button("Debug");
             subGrid[0, 1] = new Button("Keyuser");
