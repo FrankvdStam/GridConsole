@@ -1,5 +1,6 @@
 # GridConsole
 Tiny lightweight library to add some simple GUI functionality to .NET console apps.
+Consider everything unstable in this library.
 
 new in 1.1.0: 
 Grid is now a base element that can be added to an existing Grid. It will act as a button, displaying it's contents after being clicked. This allows easy submenu's.
