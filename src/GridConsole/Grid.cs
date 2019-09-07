@@ -229,14 +229,14 @@ namespace GridConsole
             _elements = new ABaseElement[GridWidth, GridHeight];
         }
 
-        /// <summary>
-        /// Access a specific element
-        /// </summary>
-        public ABaseElement this[int x, int y]
-        {
-            get => _elements[x, y];
-            set => _elements[x, y] = value;
-        }
+        ///// <summary>
+        ///// Access a specific element
+        ///// </summary>
+        //public ABaseElement this[int x, int y]
+        //{
+        //    get => _elements[x, y];
+        //    set => _elements[x, y] = value;
+        //}
 
         public ABaseElement SelectedElement;
 
@@ -359,6 +359,28 @@ namespace GridConsole
             }
 
         }
+
+        #region Add
+        //public void Add(int x, int y, ABaseElement element, int columnspan)
+        //{
+        //    for(int i = x; i < x+columnspan; i++)
+        //    {
+        //        Add(i, y, element);
+        //    }
+        //}
+
+        public void Add(int x, int y, ABaseElement element)
+        {
+            _elements[x, y] = element;
+
+            if(element is Grid grid)
+            {
+                grid._parentGrid = this;
+            }
+        }
+
+
+        #endregion
 
         #region Navigation ===============================================================================================================================
         private void TryNavigate(Keys key)

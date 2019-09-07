@@ -28,10 +28,10 @@ namespace CsharpConsole
                 .Size(1, 4)
             );
 
-            grid[0, 0] = new Text("Publish channel:");
-            grid[0, 1] = new Button("Debug");
-            grid[0, 2] = new Button("Keyuser");
-            grid[0, 3] = new Button("Release");
+            grid.Add(0, 0, new Text("Publish channel:"));
+            grid.Add(0, 1, new Button("Debug"));
+            grid.Add(0, 2, new Button("Keyuser"));
+            grid.Add(0, 3, new Button("Release"));
 
             foreach (var element in grid.EnumerateElements())
             {
@@ -58,27 +58,28 @@ namespace CsharpConsole
                 .Size(4, 4)
             );
 
-            grid[0,0] = new Button("0,0");
-            grid[0,1] = new Button("0,1");
-            grid[2,0] = new Button("2,0");
-            grid[1,1] = new Button("1,1");
-            grid[1,2] = new Button("1,2");
-            grid[2,1] = new Button("2,1");
-            grid[2,2] = new Button("2,2");
-            grid[1,0] = new Text("Text asdf");
+            grid.Add(0, 0, new Button("0,0"));
+            grid.Add(0, 1, new Button("0,1"));
+            grid.Add(2, 0, new Button("2,0"));
+            grid.Add(1, 1, new Button("1,1"));
+            grid.Add(1, 2, new Button("1,2"));
+            grid.Add(2, 1, new Button("2,1"));
+            grid.Add(2, 2, new Button("2,2"));
+            grid.Add(1, 0, new Text("Text asdf"));
          
             Grid subGrid = GridFactory.Create(i => i
                 .Target(console)
                 .Size(1, 4)
-                .Parent(grid)
+                //.Parent(grid)
                 .Text("Deploy application")
             );
 
-            subGrid[0, 0] = new Button("Debug");
-            subGrid[0, 1] = new Button("Keyuser");
-            subGrid[0, 2] = new Button("Release");
+            subGrid.Add(0, 0, new Button("Debug"));
+            subGrid.Add(0, 1, new Button("Keyuser"));
+            subGrid.Add(0, 2, new Button("Release"));
 
-            grid[0, 2] = subGrid;
+            //grid[0, 2] = subGrid;
+            grid.Add(0, 2, subGrid);
 
             foreach (var element in grid.EnumerateElements())
             {
