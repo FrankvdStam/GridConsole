@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GridConsole;
 using GridConsole.Elements;
+using GridConsole.Constants;
 
 namespace CsharpConsole
 {
@@ -57,14 +58,24 @@ namespace CsharpConsole
                 .Target(console)
                 .Size(4, 4)
             );
+            
+            grid.Add(0, 0, TextFactory.Create(i => i
+                    .Text("0,0")
+                    .Colors(Color.DarkYellow, Color.DarkBlue)
+            ));
 
-            grid.Add(0, 0, new Button("0,0"));
+
             grid.Add(0, 1, new Button("0,1"));
             grid.Add(2, 0, new Button("2,0"));
             grid.Add(1, 1, new Button("1,1"));
             grid.Add(1, 2, new Button("1,2"));
             grid.Add(2, 1, new Button("2,1"));
-            grid.Add(2, 2, new Button("2,2"));
+            grid.Add(2, 2, ButtonFactory.Create(i => i
+                    .Text("2.2")
+                    .Colors(Color.DarkRed, Color.Blue)
+                    .Highlight(Color.Green, Color.Magenta)
+            ));
+
             grid.Add(1, 0, new Text("Text asdf"));
          
             Grid subGrid = GridFactory.Create(i => i
