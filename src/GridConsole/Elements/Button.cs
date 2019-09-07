@@ -1,24 +1,74 @@
 ﻿using GridConsole.Constants;
+using System;
 
 namespace GridConsole.Elements
 {
+    public class ButtonData
+    {
+        public string Text;
+        public object Parameter = null;
+        public Color ForegroundColor          = Color.White;
+        public Color BackgroundColor          = Color.Black;
+        public Color HighlightForegroundColor = Color.Black;
+        public Color HighlightBackgroundColor = Color.White;
+        public EnterPressedDelegate EnterPressed;
+    }
+
+    public static class ButtonFactory
+    {
+        public static Button Create(Func<ButtonData, ButtonData> construct)
+        {
+            ButtonData buttonData = new ButtonData();
+            buttonData = construct(buttonData);
+            Button button = new Button(buttonData);
+            return button;
+        }
+
+        public static ButtonData Text(this ButtonData buttonData, string text)
+        {
+            buttonData.Text = text;
+            return buttonData;
+        }
+
+        public static ButtonData Colors(this ButtonData buttonData, Color foregroundColor, Color backgroundColor)
+        {
+            buttonData.ForegroundColor = foregroundColor;
+            buttonData.BackgroundColor = backgroundColor;
+            return buttonData;
+        }
+
+        public static ButtonData Highlight(this ButtonData buttonData, Color foregroundColor, Color backgroundColor)
+        {
+            buttonData.HighlightForegroundColor = foregroundColor;
+            buttonData.HighlightBackgroundColor = backgroundColor;
+            return buttonData;
+        }
+
+    }
+
     public class Button : ABaseElement { 
-        public Button(
-            string text,
-            object parameter = null,
-            Color foregroundColor = Color.White,
-            Color backgroundColor = Color.Black,
-            Color highlightForegroundColor = Color.Black,
-            Color highlightBackgroundColor = Color.White
-        ) : base(
-            foregroundColor,
-            backgroundColor,
-            highlightForegroundColor,
-            highlightBackgroundColor
-        )
+
+        public Button(ButtonData buttonData) : base
+            (
+                buttonData.ForegroundColor,
+                buttonData.BackgroundColor,
+                buttonData.HighlightForegroundColor,
+                buttonData.HighlightBackgroundColor
+            )
+        {
+            Text                = buttonData.Text;
+            Parameter           = buttonData.Text;
+            EnterPressedEvent  += buttonData.EnterPressed;
+              
+            if(string.IsNullOrWhiteSpace(Text))
+            {
+                throw new Exception("Text can't be null.");
+            }
+        }
+
+        public Button(string text) : base(Color.White, Color.Black, Color.Black, Color.White)
         {
             Text = text;
-            Parameter = parameter;
         }
 
         public override void Draw(IConsole console, int x, int y)
