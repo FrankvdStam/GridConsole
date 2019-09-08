@@ -15,6 +15,28 @@ namespace CsharpConsole
 {
     class Program
     {
+        static void Main3(string[] args)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+
+            Grid grid = GridFactory.Create(i => i
+                .Target(new DotNetConsole())
+                .Size(2, 2)
+            );
+
+            grid.Add(0, 0, new Button("0, 0"));
+            grid.Add(1, 0, new Button("1, 0"));
+            grid.Add(0, 1, new Button("span"), 2);
+
+            while(true)
+            {
+                grid.Render();
+                grid.HandleInput();
+            }
+        }
+
+
         static void Main1(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -38,7 +60,7 @@ namespace CsharpConsole
             {
                 if (element != null)
                 {
-                    element.EnterPressedEvent += ButtonClick;
+                    element.OnEnterPressed += ButtonClick;
                 }
             }
 
@@ -103,7 +125,7 @@ namespace CsharpConsole
             }
         }
 
-        static void ButtonClick(ABaseElement element, object parameter)
+        static void ButtonClick(IBaseElement element, object parameter)
         {
             if (element is Button button)
             {

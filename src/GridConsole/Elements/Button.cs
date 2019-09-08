@@ -11,7 +11,7 @@ namespace GridConsole.Elements
         public Color BackgroundColor          = Color.Black;
         public Color HighlightForegroundColor = Color.Black;
         public Color HighlightBackgroundColor = Color.White;
-        public EnterPressedDelegate EnterPressed;
+        public EnterPressedDelegate OnEnterPressed;
     }
 
     public static class ButtonFactory
@@ -46,38 +46,52 @@ namespace GridConsole.Elements
 
         public static ButtonData Pressed(this ButtonData buttonData, object parameter, EnterPressedDelegate enterPressed)
         {
-            buttonData.EnterPressed = enterPressed;
+            buttonData.OnEnterPressed = enterPressed;
             buttonData.Parameter = parameter;
             return buttonData;
         }
     }
 
-    public class Button : ABaseElement { 
+    public class Button : IBaseElement { 
 
-        public Button(ButtonData buttonData) : base
-            (
-                buttonData.ForegroundColor,
-                buttonData.BackgroundColor,
-                buttonData.HighlightForegroundColor,
-                buttonData.HighlightBackgroundColor
-            )
+        public Button(ButtonData buttonData)
         {
-            Text                = buttonData.Text;
-            Parameter           = buttonData.Parameter;
-            EnterPressedEvent  += buttonData.EnterPressed;
-              
-            if(string.IsNullOrWhiteSpace(Text))
+            Text                     = buttonData.Text;
+            Parameter                = buttonData.Parameter;
+            OnEnterPressed          += buttonData.OnEnterPressed;
+            ForegroundColor          = buttonData.ForegroundColor;
+            BackgroundColor          = buttonData.BackgroundColor;
+            HighlightForegroundColor = buttonData.HighlightForegroundColor;
+            HighlightBackgroundColor = buttonData.HighlightBackgroundColor;
+
+
+            if (string.IsNullOrWhiteSpace(Text))
             {
                 throw new Exception("Text can't be null.");
             }
         }
-
-        public Button(string text) : base(Color.White, Color.Black, Color.Black, Color.White)
+        
+        public Button(string text)
         {
             Text = text;
         }
 
-        public override void Draw(IConsole console, int x, int y)
+        #region IBaseElement ==============================================================================================================================================
+        public int RowSpan { get; private set; } = 1;
+        public int ColumnSpan { get; private set; } = 1;
+        public int Width => Text.Length;
+        public int Height => 1;
+        public bool CanBeSelected => true;
+
+        public bool IsSelected { get; set; } 
+        public Color ForegroundColor { get; set; } = Color.White;
+        public Color BackgroundColor { get; set; } = Color.Black;
+        public Color HighlightForegroundColor { get; set; } = Color.Black;
+        public Color HighlightBackgroundColor { get; set; } = Color.White;
+
+        public event EnterPressedDelegate OnEnterPressed;
+
+        public void Draw(IConsole console, int x, int y)
         {
             if (IsSelected)
             {
@@ -96,17 +110,14 @@ namespace GridConsole.Elements
             }
         }
 
-        public override void EnterPressed()
+        public void EnterPressed()
         {
-            OnEnterPressed(Parameter);
+            OnEnterPressed?.Invoke(this, Parameter);
         }
+        #endregion        
 
         public object Parameter = null;
         public string Text { get; set; }
-        public override int Width => Text.Length;
-        public override int Height => 1;
-
-        public override bool CanBeSelected => true;
 
         public override string ToString()
         {

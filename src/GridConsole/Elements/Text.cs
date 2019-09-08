@@ -35,27 +35,35 @@ namespace GridConsole.Elements
         }
     }
 
-    public class Text : ABaseElement
+    public class Text : IBaseElement
     {
-        public Text(TextData textData) : base(textData.ForegroundColor, textData.BackgroundColor, Color.Black, Color.Black)
+        public Text(TextData textData)
         {
             Text_ = textData.Text;
+            ForegroundColor = textData.ForegroundColor;
+            BackgroundColor = textData.BackgroundColor;
         }
 
-        public Text(string text) : base(Color.White, Color.Black, Color.Black, Color.Black)
+        public Text(string text)
         {
             Text_ = text;
         }
 
-        public override int Width => Text_.Length;
+        #region IBaseElement ==============================================================================================================================================
+        public int RowSpan { get; private set; } = 1;
+        public int ColumnSpan { get; private set; } = 1;
+        public int Width => Text_.Length;
+        public int Height => 1;
+        public bool IsSelected { get; set; }
+        public Color ForegroundColor { get; set; } = Color.White;
+        public Color BackgroundColor { get; set; } = Color.Black;
 
-        public override int Height => 1;
-
-        public override bool CanBeSelected => false;
-
-        public string Text_ { get; set; }
-
-        public override void Draw(IConsole console, int x, int y)
+        //Text can't be selected, these are irrelevant
+        public bool CanBeSelected => false;
+        public Color HighlightForegroundColor { get; set; } = Color.Black;
+        public Color HighlightBackgroundColor { get; set; } = Color.White;
+               
+        public void Draw(IConsole console, int x, int y)
         {
             console.SetForegroundColor(ForegroundColor);
             console.SetBackgroundColor(BackgroundColor);
@@ -65,5 +73,15 @@ namespace GridConsole.Elements
                 console.Write(c);
             }
         }
+
+        //Text can't be pressed
+        public event EnterPressedDelegate OnEnterPressed;
+        public void EnterPressed()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        public string Text_ { get; set; }
     }
 }
