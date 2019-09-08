@@ -3,68 +3,18 @@ using System;
 
 namespace GridConsole.Elements
 {
-    public class ButtonData
-    {
-        public string Text;
-        public object Parameter = null;
-        public Color ForegroundColor          = Color.White;
-        public Color BackgroundColor          = Color.Black;
-        public Color HighlightForegroundColor = Color.Black;
-        public Color HighlightBackgroundColor = Color.White;
-        public EnterPressedDelegate OnEnterPressed;
-    }
-
-    public static class ButtonFactory
-    {
-        public static Button Create(Func<ButtonData, ButtonData> construct)
-        {
-            ButtonData buttonData = new ButtonData();
-            buttonData = construct(buttonData);
-            Button button = new Button(buttonData);
-            return button;
-        }
-
-        public static ButtonData Text(this ButtonData buttonData, string text)
-        {
-            buttonData.Text = text;
-            return buttonData;
-        }
-
-        public static ButtonData Colors(this ButtonData buttonData, Color foregroundColor, Color backgroundColor)
-        {
-            buttonData.ForegroundColor = foregroundColor;
-            buttonData.BackgroundColor = backgroundColor;
-            return buttonData;
-        }
-
-        public static ButtonData Highlight(this ButtonData buttonData, Color foregroundColor, Color backgroundColor)
-        {
-            buttonData.HighlightForegroundColor = foregroundColor;
-            buttonData.HighlightBackgroundColor = backgroundColor;
-            return buttonData;
-        }
-
-        public static ButtonData Pressed(this ButtonData buttonData, object parameter, EnterPressedDelegate enterPressed)
-        {
-            buttonData.OnEnterPressed = enterPressed;
-            buttonData.Parameter = parameter;
-            return buttonData;
-        }
-    }
-
     public class Button : IBaseElement { 
 
-        public Button(ButtonData buttonData)
+        public Button(ElementData elementData)
         {
-            Text                     = buttonData.Text;
-            Parameter                = buttonData.Parameter;
-            OnEnterPressed          += buttonData.OnEnterPressed;
-            ForegroundColor          = buttonData.ForegroundColor;
-            BackgroundColor          = buttonData.BackgroundColor;
-            HighlightForegroundColor = buttonData.HighlightForegroundColor;
-            HighlightBackgroundColor = buttonData.HighlightBackgroundColor;
-
-
+            Text                     = elementData.Text;
+            Parameter                = elementData.Parameter;
+            OnEnterPressed          += elementData.OnEnterPressed;
+            ForegroundColor          = elementData.ForegroundColor;
+            BackgroundColor          = elementData.BackgroundColor;
+            HighlightForegroundColor = elementData.HighlightForegroundColor;
+            HighlightBackgroundColor = elementData.HighlightBackgroundColor;
+            
             if (string.IsNullOrWhiteSpace(Text))
             {
                 throw new Exception("Text can't be null.");

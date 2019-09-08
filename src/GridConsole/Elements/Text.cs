@@ -3,45 +3,13 @@ using System;
 
 namespace GridConsole.Elements
 {
-
-    public class TextData
-    {
-        public string Text;
-        public Color ForegroundColor = Color.White;
-        public Color BackgroundColor = Color.Black;
-    }
-
-    public static class TextFactory
-    {
-        public static Text Create(Func<TextData, TextData> construct)
-        {
-            TextData textData = new TextData();
-            textData = construct(textData);
-            Text text = new Text(textData);
-            return text;
-        }
-
-        public static TextData Text(this TextData textData, string text)
-        {
-            textData.Text = text;
-            return textData;
-        }
-
-        public static TextData Colors(this TextData textData, Color foregroundColor, Color backgroundColor)
-        {
-            textData.ForegroundColor = foregroundColor;
-            textData.BackgroundColor = backgroundColor;
-            return textData;
-        }
-    }
-
     public class Text : IBaseElement
     {
-        public Text(TextData textData)
+        public Text(ElementData elementData)
         {
-            Text_ = textData.Text;
-            ForegroundColor = textData.ForegroundColor;
-            BackgroundColor = textData.BackgroundColor;
+            Text_ = elementData.Text;
+            ForegroundColor = elementData.ForegroundColor;
+            BackgroundColor = elementData.BackgroundColor;
         }
 
         public Text(string text)
