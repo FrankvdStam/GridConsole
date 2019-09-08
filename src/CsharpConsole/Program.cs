@@ -20,7 +20,7 @@ namespace CsharpConsole
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-            Grid grid = GridFactory.Create(i => i
+            Grid grid = ElementFactory.CreateGrid(i => i
                 .Target(new DotNetConsole())
                 .Size(2, 2)
             );
@@ -42,11 +42,11 @@ namespace CsharpConsole
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-            Grid gasd = GridFactory.Create(i => i.Size(1, 1).Target(new DotNetConsole()));
+            Grid gasd = ElementFactory.CreateGrid(i => i.Size(1, 1).Target(new DotNetConsole()));
 
             IConsole console = new DotNetConsole();
             
-            Grid grid = GridFactory.Create(i => i
+            Grid grid = ElementFactory.CreateGrid(i => i
                 .Target(console)
                 .Size(1, 4)
             );
@@ -76,12 +76,12 @@ namespace CsharpConsole
         {
             IConsole console = new DotNetConsole();
 
-            Grid grid = GridFactory.Create(i => i
+            Grid grid = ElementFactory.CreateGrid(i => i
                 .Target(console)
                 .Size(4, 4)
             );
             
-            grid.Add(0, 0, TextFactory.Create(i => i
+            grid.Add(0, 0, ElementFactory.CreateText(i => i
                     .Text("0,0")
                     .Colors(Color.DarkYellow, Color.DarkBlue)
             ));
@@ -93,7 +93,7 @@ namespace CsharpConsole
             grid.Add(1, 2, new Button("1,2"));
             grid.Add(2, 1, new Button("2,1"));
 
-            grid.Add(2, 2, ButtonFactory.Create(i => i
+            grid.Add(2, 2, ElementFactory.CreateButton(i => i
                     .Text("2.2")
                     .Colors(Color.DarkRed, Color.Blue)
                     .Highlight(Color.Green, Color.Magenta)
@@ -101,7 +101,7 @@ namespace CsharpConsole
 
             grid.Add(1, 0, new Text("Text asdf"));
          
-            Grid subGrid = GridFactory.Create(i => i
+            Grid subGrid = ElementFactory.CreateGrid(i => i
                 .Target(console)
                 .Size(1, 4)
                 .Text("Deploy application")
@@ -111,9 +111,9 @@ namespace CsharpConsole
 
             subGrid.Add(0, 0, new Button("Debug"));
             subGrid.Add(0, 1, new Button("Keyuser"));
-            subGrid.Add(0, 2, ButtonFactory.Create(i => i
+            subGrid.Add(0, 2, ElementFactory.CreateButton(i => i
                 .Text("Release")
-                .Pressed(12, (sender, param) => { System.Diagnostics.Debug.WriteLine("Release button pressed. Param: " + (int)param); })
+                .Pressed((sender, param) => { System.Diagnostics.Debug.WriteLine("Release button pressed. Param: " + (int)param); }, 12)
             ));
             
             grid.Add(0, 2, subGrid);

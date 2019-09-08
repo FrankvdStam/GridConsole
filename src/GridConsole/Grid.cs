@@ -6,92 +6,25 @@ using GridConsole.Elements;
 
 namespace GridConsole
 {
-    public class GridData
-    {
-        public int GridWidth = 1;
-        public int GridHeight = 1;
-        public int MarginWidth = 1;
-        public int MarginHeight = 0;
-        public string Text;
-        public Grid ParentGrid;
-        public IConsole Console;
-        public Color ForegroundColor = Color.White;
-        public Color BackgroundColor = Color.Black;
-        public Color HighlightForegroundColor = Color.Black;
-        public Color HighlightBackgroundColor = Color.White;
-    }
-    
-    public static class GridFactory
-    {
-        public static Grid Create(Func<GridData, GridData> construct)
-        {
-            GridData girdData = new GridData();
-            girdData = construct(girdData);
-            Grid grid = new Grid(girdData);
-            return grid;
-        }
-        
-        public static GridData Size(this GridData girdData, int width, int height)
-        {
-            girdData.GridWidth = width;
-            girdData.GridHeight = height;
-            return girdData;
-        }
-
-        public static GridData Margin(this GridData girdData, int width, int height)
-        {
-            girdData.MarginWidth = width;
-            girdData.MarginHeight = height;
-            return girdData;
-        }
-
-        public static GridData Target(this GridData girdData, IConsole console)
-        {
-            girdData.Console = console;
-            return girdData;
-        }
-
-        public static GridData Parent(this GridData girdData, Grid parentGrid)
-        {
-            girdData.ParentGrid = parentGrid;
-            return girdData;
-        }
-
-        public static GridData Text(this GridData girdData, string text)
-        {
-            girdData.Text = text;
-            return girdData;
-        }
-
-        public static GridData Colors(this GridData gridData, Color foregroundColor, Color backgroundColor)
-        {
-            gridData.ForegroundColor = foregroundColor;
-            gridData.BackgroundColor = backgroundColor;
-            return gridData;
-        }
-
-        public static GridData Highlight(this GridData gridData, Color foregroundColor, Color backgroundColor)
-        {
-            gridData.HighlightForegroundColor = foregroundColor;
-            gridData.HighlightBackgroundColor = backgroundColor;
-            return gridData;
-        }
-    }
-    
     public class Grid : IBaseElement
     {
         #region constructor/Fluent interface
-        public Grid(GridData girdData)
+        public Grid(ElementData elementData)
         {
-            GridWidth       = girdData.GridWidth;
-            GridHeight      = girdData.GridHeight;
+            GridWidth       = elementData.Width;
+            GridHeight      = elementData.Height;
             _elements       = new IBaseElement[GridWidth, GridHeight];
-            MarginWidth     = girdData.MarginWidth;
-            MarginHeight    = girdData.MarginHeight;
-            _parentGrid     = girdData.ParentGrid;
-            _console        = girdData.Console;
-            Text            = girdData.Text;
-            
+            MarginWidth     = elementData.MarginWidth;
+            MarginHeight    = elementData.MarginHeight;
+            Parameter       = elementData.Parameter;
+            OnEnterPressed += elementData.OnEnterPressed;
+            _console        = elementData.Target;
+            Text            = elementData.Text;
+            ForegroundColor = elementData.ForegroundColor;
+            BackgroundColor = elementData.BackgroundColor;
+            HighlightForegroundColor = elementData.HighlightForegroundColor;
+            HighlightBackgroundColor = elementData.HighlightBackgroundColor;
+
             if (GridWidth <= 0 && GridHeight <= 0 && _console != null)
             {
                 throw new Exception("Grid needs a width and height larger then 1 and a proper target. Try calling Size() and Target().");
@@ -113,11 +46,12 @@ namespace GridConsole
         public Color HighlightForegroundColor { get; set; } = Color.Black;
         public Color HighlightBackgroundColor { get; set; } = Color.White;
         
+        public object Parameter { get; set; }
 
         public event EnterPressedDelegate OnEnterPressed;
         public void EnterPressed()
         {
-            OnEnterPressed?.Invoke(this, null);
+            OnEnterPressed?.Invoke(this, Parameter);
         }
                        
         public void Draw(IConsole console, int x, int y)

@@ -1,4 +1,5 @@
-﻿using GridConsole.Constants;
+﻿using System;
+using GridConsole.Constants;
 
 namespace GridConsole.Elements
 {
@@ -22,5 +23,5 @@ namespace GridConsole.Elements
         event EnterPressedDelegate OnEnterPressed;
         void EnterPressed();
         void Draw(IConsole console, int x, int y);
-    }    
+    }
 }
