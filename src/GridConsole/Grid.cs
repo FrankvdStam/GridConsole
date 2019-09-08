@@ -78,20 +78,14 @@ namespace GridConsole
         }
     }
     
-    public class Grid : ABaseElement
+    public class Grid : IBaseElement
     {
         #region constructor/Fluent interface
-        public Grid(GridData girdData) : base
-            (
-                girdData.ForegroundColor,
-                girdData.BackgroundColor,
-                girdData.HighlightForegroundColor,
-                girdData.HighlightBackgroundColor
-            )
+        public Grid(GridData girdData)
         {
             GridWidth       = girdData.GridWidth;
             GridHeight      = girdData.GridHeight;
-            _elements = new ABaseElement[GridWidth, GridHeight];
+            _elements       = new IBaseElement[GridWidth, GridHeight];
             MarginWidth     = girdData.MarginWidth;
             MarginHeight    = girdData.MarginHeight;
             _parentGrid     = girdData.ParentGrid;
@@ -105,12 +99,28 @@ namespace GridConsole
         }
         #endregion
 
-        #region Base element ========================================================================================================
-        public string Text { get; set; }
-        public override int Width => Text.Length;
-        public override int Height => 1;
-        public override bool CanBeSelected => true;
-        public override void Draw(IConsole console, int x, int y)
+        #region IBaseElement ========================================================================================================
+
+        public int RowSpan { get; private set; } = 1;
+        public int ColumnSpan { get; private set; } = 1;
+        public int Width => Text.Length;
+        public int Height => 1;
+        public bool CanBeSelected => true;
+        public bool IsSelected { get; set; }
+
+        public Color ForegroundColor { get; set; } = Color.White;
+        public Color BackgroundColor { get; set; } = Color.Black;
+        public Color HighlightForegroundColor { get; set; } = Color.Black;
+        public Color HighlightBackgroundColor { get; set; } = Color.White;
+        
+
+        public event EnterPressedDelegate OnEnterPressed;
+        public void EnterPressed()
+        {
+            OnEnterPressed?.Invoke(this, null);
+        }
+                       
+        public void Draw(IConsole console, int x, int y)
         {
             if (IsSelected)
             {
@@ -132,11 +142,14 @@ namespace GridConsole
         
         #region properties/utilities
         private readonly IConsole _console;
-        private ABaseElement[,] _elements;
-        private Grid _subGrid = null; //Subgrid is found dynamically when selected
-        private Grid _parentGrid = null; //Parentgrid must be passed as reference when constructed
+        private IBaseElement[,] _elements;
+        //Subgrid is found dynamically when selected
+        private Grid _subGrid = null; 
+        //Parentgrid must be passed as reference when constructed
+        private Grid _parentGrid = null; 
         private bool _clearScreen = false;
 
+        public string Text { get; set; }
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
         public int MarginWidth { get; private set; }
@@ -149,7 +162,7 @@ namespace GridConsole
         {
             GridWidth = width;
             GridHeight = height;
-            _elements = new ABaseElement[GridWidth, GridHeight];
+            _elements = new IBaseElement[GridWidth, GridHeight];
         }
 
         ///// <summary>
@@ -161,9 +174,9 @@ namespace GridConsole
         //    set => _elements[x, y] = value;
         //}
 
-        public ABaseElement SelectedElement;
+        public IBaseElement SelectedElement;
 
-        private void NavigateToElement(ABaseElement element)
+        private void NavigateToElement(IBaseElement element)
         {
             if (SelectedElement != null)
             {
@@ -177,7 +190,7 @@ namespace GridConsole
         /// <summary>
         /// Gets the position of an element in the grid
         /// </summary>
-        private bool TryGetElementGridPosition(ABaseElement element, out int x, out int y)
+        private bool TryGetElementGridPosition(IBaseElement element, out int x, out int y)
         {
             x = 0;
             y = 0;
@@ -199,7 +212,7 @@ namespace GridConsole
         /// <summary>
         /// Enumerates all the elements in the grid.
         /// </summary>
-        public IEnumerable<ABaseElement> EnumerateElements()
+        public IEnumerable<IBaseElement> EnumerateElements()
         {
             for (int i = 0; i < GridWidth; i++)
             {
@@ -284,15 +297,15 @@ namespace GridConsole
         }
 
         #region Add
-        //public void Add(int x, int y, ABaseElement element, int columnspan)
-        //{
-        //    for(int i = x; i < x+columnspan; i++)
-        //    {
-        //        Add(i, y, element);
-        //    }
-        //}
+        public void Add(int x, int y, IBaseElement element, int columnspan)
+        {
+            for(int i = x; i < x+columnspan; i++)
+            {
+                Add(i, y, element);
+            }
+        }
 
-        public void Add(int x, int y, ABaseElement element)
+        public void Add(int x, int y, IBaseElement element)
         {
             _elements[x, y] = element;
 
