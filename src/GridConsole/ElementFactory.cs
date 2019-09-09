@@ -27,19 +27,19 @@ namespace GridConsole
         public int Width;
         public int Height;
 
-        public int MarginWidth;
+        public int MarginWidth = 1;
         public int MarginHeight;
 
-        public int RowSpan;
-        public int ColumnSpan;
+        public int RowSpan = 1;
+        public int ColumnSpan = 1;
 
         public string Text;
         public object Parameter;
 
-        public Color ForegroundColor;
-        public Color BackgroundColor;
-        public Color HighlightForegroundColor;
-        public Color HighlightBackgroundColor;
+        public Color ForegroundColor = Color.White;
+        public Color BackgroundColor = Color.Black;
+        public Color HighlightForegroundColor = Color.Black;
+        public Color HighlightBackgroundColor = Color.White;
 
         public EnterPressedDelegate OnEnterPressed;
         public IConsole Target;
@@ -140,6 +140,18 @@ namespace GridConsole
         {
             elementData.MarginWidth = width;
             elementData.MarginHeight = height;
+            return elementData;
+        }
+
+        public static ElementData ColumnSpan(this ElementData elementData, int columnSpan)
+        {
+            elementData.ColumnSpan = columnSpan;
+            return elementData;
+        }
+
+        public static ElementData RowSpan(this ElementData elementData, int rowSpan)
+        {
+            elementData.RowSpan = rowSpan;
             return elementData;
         }
     }

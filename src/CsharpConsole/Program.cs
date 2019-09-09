@@ -15,7 +15,7 @@ namespace CsharpConsole
 {
     class Program
     {
-        static void Main3(string[] args)
+        static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
@@ -27,7 +27,10 @@ namespace CsharpConsole
 
             grid.Add(0, 0, new Button("0, 0"));
             grid.Add(1, 0, new Button("1, 0"));
-            grid.Add(0, 1, new Button("span"), 2);
+            grid.Add(0, 1, ElementFactory.CreateButton(i => i
+                .Text("<-span->")
+                .ColumnSpan(2)
+            ));
 
             while(true)
             {
@@ -37,7 +40,7 @@ namespace CsharpConsole
         }
 
 
-        static void Main1(string[] args)
+        static void Main123(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
@@ -72,7 +75,7 @@ namespace CsharpConsole
         }
 
 
-        static void Main(string[] args)
+        static void Main341(string[] args)
         {
             IConsole console = new DotNetConsole();
 
@@ -115,7 +118,7 @@ namespace CsharpConsole
                 .Text("Release")
                 .Pressed((sender, param) => { System.Diagnostics.Debug.WriteLine("Release button pressed. Param: " + (int)param); }, 12)
             ));
-            
+
             grid.Add(0, 2, subGrid);
 
             while (true)

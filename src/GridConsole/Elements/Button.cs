@@ -14,7 +14,9 @@ namespace GridConsole.Elements
             BackgroundColor          = elementData.BackgroundColor;
             HighlightForegroundColor = elementData.HighlightForegroundColor;
             HighlightBackgroundColor = elementData.HighlightBackgroundColor;
-            
+            RowSpan                  = elementData.RowSpan;
+            ColumnSpan               = elementData.ColumnSpan;
+
             if (string.IsNullOrWhiteSpace(Text))
             {
                 throw new Exception("Text can't be null.");

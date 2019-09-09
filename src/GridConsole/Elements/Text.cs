@@ -10,6 +10,8 @@ namespace GridConsole.Elements
             Text_ = elementData.Text;
             ForegroundColor = elementData.ForegroundColor;
             BackgroundColor = elementData.BackgroundColor;
+            RowSpan         = elementData.RowSpan;
+            ColumnSpan      = elementData.ColumnSpan;
         }
 
         public Text(string text)
