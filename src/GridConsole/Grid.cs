@@ -24,6 +24,8 @@ namespace GridConsole
             BackgroundColor = elementData.BackgroundColor;
             HighlightForegroundColor = elementData.HighlightForegroundColor;
             HighlightBackgroundColor = elementData.HighlightBackgroundColor;
+            RowSpan = elementData.RowSpan;
+            ColumnSpan = elementData.ColumnSpan;
 
             if (GridWidth <= 0 && GridHeight <= 0 && _console != null)
             {
@@ -83,10 +85,14 @@ namespace GridConsole
         private Grid _parentGrid = null; 
         private bool _clearScreen = false;
 
+        //These arrays contain the size of the columns and rows, are recalculated everytime an element is added
+        private int[] _columnWidths;
+        private int[] _rowHeights;
+
         public string Text { get; set; }
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
-        public int MarginWidth { get; private set; }
+        public int MarginWidth { get; private set; } = 1;
         public int MarginHeight { get; private set; }
         
         /// <summary>
@@ -97,6 +103,7 @@ namespace GridConsole
             GridWidth = width;
             GridHeight = height;
             _elements = new IBaseElement[GridWidth, GridHeight];
+            ReCalculateSizes();
         }
 
         ///// <summary>
@@ -157,6 +164,16 @@ namespace GridConsole
             }
         }
         #endregion
+
+        #region Render and input
+        public void Run()
+        {
+            while(true)
+            {
+                Render();
+                HandleInput();
+            }
+        }
 
         /// <summary>
         /// Waits for keyboard input (halts the caller). Does NOT call draw again, you must do this yourself.
@@ -229,16 +246,9 @@ namespace GridConsole
             }
 
         }
+        #endregion
 
         #region Add
-        public void Add(int x, int y, IBaseElement element, int columnspan)
-        {
-            for(int i = x; i < x+columnspan; i++)
-            {
-                Add(i, y, element);
-            }
-        }
-
         public void Add(int x, int y, IBaseElement element)
         {
             _elements[x, y] = element;
@@ -247,9 +257,9 @@ namespace GridConsole
             {
                 grid._parentGrid = this;
             }
+
+            ReCalculateSizes();
         }
-
-
         #endregion
 
         #region Navigation ===============================================================================================================================
@@ -393,14 +403,17 @@ namespace GridConsole
         {
             int[] columnCoords = new int[GridWidth];
             int width = 0;
-            for (int i = 0; i < GridWidth; i++)
+            for (int i = 0; i < _columnWidths.Length; i++)
             {
-                if (i != 0)
+                if (i == 0)
                 {
-                    //Add the width of the previous column plus the width margin
-                    width += CalculateColumnWidth(i - 1) + MarginWidth;
+                    columnCoords[i] = 0;
                 }
-                columnCoords[i] = width;
+                else
+                {
+                    width += _columnWidths[i - 1] + MarginWidth;
+                    columnCoords[i] = width;
+                }
             }
             return columnCoords;
         }
@@ -409,43 +422,122 @@ namespace GridConsole
         {
             int[] rowCoords = new int[GridHeight];
             int height = 0;
-            for (int i = 0; i < GridHeight; i++)
+            for (int i = 0; i < _rowHeights.Length; i++)
             {
-                if (i != 0)
+                if (i == 0)
                 {
-                    //Add the height of the previous row plus height margin
-                    height += CalculateRowHeight(i - 1) + MarginHeight;
+                    rowCoords[i] = 0;
                 }
-                rowCoords[i] = height;
+                else
+                {
+                    height += _rowHeights[i - 1] + MarginHeight;
+                    rowCoords[i] = height;
+                }
             }
             return rowCoords;
         }
-
-
-        private int CalculateColumnWidth(int column)
+                   
+        private void ReCalculateSizes()
         {
-            int max = 0;
-            for (int i = 0; i < GridHeight; i++)
-            {
-                if (max < _elements[column, i]?.Width)
-                {
-                    max = _elements[column, i].Width;
-                }
-            }
-            return max;
+            _columnWidths = CalculateColumnWidths();
+            _rowHeights = CalculateRowHeights();
         }
 
-        private int CalculateRowHeight(int row)
+        private int[] CalculateColumnWidths()
         {
-            int max = 0;
-            for (int i = 0; i < GridWidth; i++)
+            int[] widths = new int[GridWidth];
+
+            //First step: calculate the max with of each column and store these
+            for (int x = 0; x < GridWidth; x++)
             {
-                if (max < _elements[i, row]?.Height)
+                int max = 0;
+                for (int y = 0; y < GridHeight; y++)
                 {
-                    max = _elements[i, row].Height;
+                    if (_elements[x, y] != null && _elements[x, y].ColumnSpan == 1 && _elements[x, y]?.Width > max)
+                    {
+                        max = _elements[x, y].Width;
+                    }                    
+                }
+                widths[x] = max;
+            }
+
+            //Second step: correct the widths for columnspans not equal to 1.
+            for (int x = 0; x < GridWidth; x++)
+            {
+                for (int y = 0; y < GridHeight; y++)
+                {
+                    if (_elements[x, y] != null && _elements[x, y].ColumnSpan != 1)
+                    {
+                        //The element starts at x, y. It has a width, there are margins.
+                        //Maybe the element fits in the alocated space. If that is the case, we don't have to correct anything.
+                        //First step is to calculate the size available for the element
+                        int availableSize = 0;
+                        for (int i = x; i < x + _elements[x, y].ColumnSpan; i++)
+                        {
+                            availableSize += widths[i];
+                        }
+                        //Add only the internal margins, we can't draw over the margins on the outside.
+                        availableSize += (_elements[x, y].ColumnSpan - 1) * MarginWidth;
+
+                        //See if we need to adjust the size:
+                        if (availableSize < _elements[x, y].Width)
+                        {
+                            int increment = _elements[x, y].Width - availableSize;
+                            widths[x + _elements[x, y].ColumnSpan - 1] += increment;
+                        }
+                    }
                 }
             }
-            return max;
+
+            return widths;
+        }
+
+        private int[] CalculateRowHeights()
+        {
+            int[] heights = new int[GridHeight];
+
+            //First step: calculate the max with of each column and store these
+            for (int y = 0; y < GridHeight; y++)
+            {
+                int max = 0;
+                for (int x = 0; x < GridWidth; x++)
+                {
+                    if (_elements[x, y] != null && _elements[x, y].RowSpan == 1 && _elements[x, y]?.Height > max)
+                    {
+                        max = _elements[x, y].Height;
+                    }
+                    heights[y] = max;
+                }
+            }
+
+            //Second step: correct the widths for columnspans not equal to 1.
+            for (int y = 0; y < GridHeight; y++)
+            {
+                for (int x = 0; x < GridWidth; x++)
+                {
+                    if (_elements[x, y] != null && _elements[x, y].RowSpan != 1)
+                    {
+                        //The element starts at x, y. It has a width, there are margins.
+                        //Maybe the element fits in the alocated space. If that is the case, we don't have to correct anything.
+                        //First step is to calculate the size available for the element
+                        int availableSize = 0;
+                        for (int i = x; i < x + _elements[x, y].RowSpan; i++)
+                        {
+                            availableSize += heights[i];
+                        }
+                        //Add only the internal margins, we can't draw over the margins on the outside.
+                        availableSize += (_elements[x, y].RowSpan - 1) * MarginHeight;
+
+                        //See if we need to adjust the size:
+                        if (availableSize < _elements[x, y].Height)
+                        {
+                            int increment = _elements[x, y].Height - availableSize;
+                            heights[x + _elements[x, y].RowSpan - 1] += increment;
+                        }
+                    }
+                }
+            }
+            return heights;
         }
         #endregion
     }
