@@ -8,7 +8,7 @@ namespace GridConsole
 {
     public class Grid : IBaseElement
     {
-        #region constructor/Fluent interface
+        #region constructor
         public Grid(ElementData elementData)
         {
             GridWidth       = elementData.Width;
@@ -166,6 +166,17 @@ namespace GridConsole
         #endregion
 
         #region Render and input
+        /// <summary>
+        /// Clears the screen on the next render cycle
+        /// </summary>
+        public void ClearScreen()
+        {
+            _clearScreen = true;
+        }
+
+        /// <summary>
+        /// Mainloop, renders and calls input on every cycle.
+        /// </summary>
         public void Run()
         {
             while(true)
@@ -237,11 +248,19 @@ namespace GridConsole
             int[] columnCoords = CalculateColumnCoords();
             int[] rowCoords = CalculateRowCoords();
 
+            //Elements can exists in the array multiple times if they have a row or column span.
+            //Since we draw right to left and top to bottom, it's safe to keep track of which elements we've drawn to only draw them once.
+            List<IBaseElement> drawnElements = new List<IBaseElement>();
+
             for (int i = 0; i < GridWidth; i++)
             {
                 for (int j = 0; j < GridHeight; j++)
                 {
-                    _elements[i, j]?.Draw(_console, columnCoords[i], rowCoords[j]);
+                    if(_elements[i, j] != null && !drawnElements.Contains(_elements[i, j]))
+                    {                        
+                        _elements[i, j].Draw(_console, columnCoords[i], rowCoords[j]);
+                        drawnElements.Add(_elements[i, j]);
+                    }
                 }
             }
 
@@ -252,6 +271,13 @@ namespace GridConsole
         public void Add(int x, int y, IBaseElement element)
         {
             _elements[x, y] = element;
+            //for (int _x = x; _x < x + element.ColumnSpan; _x++)
+            //{
+            //    for (int _y = y; _y < y + element.RowSpan; _y++)
+            //    {
+            //        _elements[_x, _y] = element;
+            //    }
+            //}
 
             if(element is Grid grid)
             {
