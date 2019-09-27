@@ -40,12 +40,10 @@ namespace CsharpConsole
         }
 
 
-        static void Main123(string[] args)
+        static void Main1(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
-
-            Grid gasd = ElementFactory.CreateGrid(i => i.Size(1, 1).Target(new DotNetConsole()));
 
             IConsole console = new DotNetConsole();
             
@@ -75,7 +73,7 @@ namespace CsharpConsole
         }
 
 
-        static void Main341(string[] args)
+        static void Main2(string[] args)
         {
             IConsole console = new DotNetConsole();
 
