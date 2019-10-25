@@ -183,7 +183,9 @@ Example usage (pre 1.1.0):
         }
     }
 
+Install via NuGet:
 
+https://www.nuget.org/packages/GridConsole/
 
 
 
