@@ -17,9 +17,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-            
-    - name: print branche
-       run: echo ${{ github.ref }}
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
@@ -29,10 +26,3 @@ jobs:
         dotnet pack src\GridConsole\GridConsole.csproj --configuration Release
         dotnet nuget push
         dotnet nuget push src\GridConsole\bin\Release\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_PUBLISH}}
- 
-   # - name: publish
-   #   run: nuget push GridConsole.0.0.0.nupkg ${{secrets.NUGET_PUBLISH}} -Source https://api.nuget.org/v3/index.json
-   #   
-   # - name: publish with dotnet
-   #   run: dotnet nuget push <NUGET PACKAGE> -k <API KEY> -s https://api.nuget.org/v3/index.json
-      
