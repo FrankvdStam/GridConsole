@@ -24,5 +24,4 @@ jobs:
     - name: pack & publish
       run: |
         dotnet pack src\GridConsole\GridConsole.csproj --configuration Release
-        dotnet nuget push
         dotnet nuget push src\GridConsole\bin\Release\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_PUBLISH}}
