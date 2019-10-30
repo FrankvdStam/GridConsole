@@ -1,4 +1,8 @@
 # GridConsole
+
+![](https://github.com/FrankvdStam/GridConsole/workflows/Build/badge.svg)
+
+
 Tiny lightweight library to add some simple GUI functionality to .NET console apps.
 Consider everything unstable in this library.
 
