@@ -1,4 +1,4 @@
-name: .NET Core
+name: deploy
 
 on:
   push:
@@ -18,6 +18,9 @@ jobs:
       with:
         dotnet-version: 2.2.108
             
+    - name: print branche
+       run: echo ${{GITHUB_HEAD_REF}}
+
     - name: Build with dotnet
       run: dotnet build --configuration Release
         
