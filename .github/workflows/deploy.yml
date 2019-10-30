@@ -19,7 +19,7 @@ jobs:
         dotnet-version: 2.2.108
             
     - name: print branche
-       run: echo ${{GITHUB_HEAD_REF}}
+       run: echo $GITHUB_HEAD_REF
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
